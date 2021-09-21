@@ -19,6 +19,7 @@ namespace HouseSpider
             PriceDetail price_detail = new PriceDetail();
             Info info = new Info();
             HomeFacts homeFacts = new HomeFacts();
+            List<string> images = new List<string>();
             try
             {
                 IWebDriver driver = new ChromeDriver("C:\\Program Files (x86)\\Google\\Chrome\\Application");
@@ -112,49 +113,49 @@ namespace HouseSpider
                     {
                         homeFacts.appliances = item.Descendants("td").ToList()[0].InnerText.Trim();
                     }
+                    else if (item.Descendants("th").ToList()[0].InnerText.Contains("Community"))
+                    {
+                        homeFacts.community = item.Descendants("td").ToList()[0].InnerText.Trim();
+                    }
                 }
-                homeFacts.bedrooms = Convert.ToInt32(root.Descendants()
+                var info_items = root.Descendants()
+                    .Where(n => n.GetAttributeValue("class", "")
+                    .Contains("listingheader-details l-pipedlist"))
+                    .ToList()[0]
+                    .Descendants("li").ToList();
+                info.bedrooms = Convert.ToInt32(info_items[0].InnerText.Split(' ')[0]);
+                info.bathrooms = Convert.ToInt32(info_items[1].InnerText.Split(' ')[0]);
+                info.size = Convert.ToInt32(info_items[2].InnerText.Split(' ')[0]);
+                info.type = info_items[3].InnerText.Trim();
+                houseInfo.address = root.Descendants()
+                    .Where(n => n.GetAttributeValue("class", "")
+                    .Contains("listingheader-address"))
+                    .ToList()[0].InnerText;
+                houseInfo.neighborhood = root.Descendants()
+                    .Where(n => n.GetAttributeValue("class", "")
+                    .Contains("listingheader-neighborhood l-pipedlist"))
+                    .ToList()[0]
+                    .Descendants("li").ToList()[0].InnerText;
+                houseInfo.mls_number = root.Descendants()
                     .Where(n => n.GetAttributeValue("class", "")
                     .Contains("sectionblock-display"))
                     .ToList()[0]
-                    .Descendants("tbody").ToList()[1].Descendants("td")
-                    .ToList()[0].InnerText.Trim());
-                homeFacts.bathrooms = Convert.ToInt32(root.Descendants()
-                    .Where(n => n.GetAttributeValue("class", "")
-                    .Contains("sectionblock-display"))
-                    .ToList()[0]
-                    .Descendants("tbody").ToList()[1].Descendants("td")
-                    .ToList()[1].InnerText.Trim());
-                homeFacts.property_type = root.Descendants()
-                    .Where(n => n.GetAttributeValue("class", "")
-                    .Contains("sectionblock-display"))
-                    .ToList()[0]
-                    .Descendants("tbody").ToList()[1].Descendants("td")
+                    .Descendants("tbody").ToList()[3].Descendants("td")
                     .ToList()[2].InnerText.Trim();
-                homeFacts.year_built = root.Descendants()
+                var imagesNode = root.Descendants()
                     .Where(n => n.GetAttributeValue("class", "")
-                    .Contains("sectionblock-display"))
+                    .Contains("slider animated"))
                     .ToList()[0]
-                    .Descendants("tbody").ToList()[1].Descendants("td")
-                    .ToList()[3].InnerText.Trim();
-                homeFacts.title = root.Descendants()
-                    .Where(n => n.GetAttributeValue("class", "")
-                    .Contains("sectionblock-display"))
-                    .ToList()[0]
-                    .Descendants("tbody").ToList()[1].Descendants("td")
-                    .ToList()[4].InnerText.Trim();
-                homeFacts.style = root.Descendants()
-                    .Where(n => n.GetAttributeValue("class", "")
-                    .Contains("sectionblock-display"))
-                    .ToList()[0]
-                    .Descendants("tbody").ToList()[1].Descendants("td")
-                    .ToList()[5].InnerText.Trim();
-                homeFacts.community = root.Descendants()
-                    .Where(n => n.GetAttributeValue("class", "")
-                    .Contains("sectionblock-display"))
-                    .ToList()[0]
-                    .Descendants("tbody").ToList()[1].Descendants("td")
-                    .ToList()[6].InnerText.Trim();
+                    .Descendants("img").ToList();
+                foreach (var item in imagesNode)
+                {
+                    var imageSrc = item.GetAttributeValue("src", "");
+                    images.Add(imageSrc);
+                }
+                houseInfo.image = images;
+                houseInfo.home_facts = homeFacts;
+                houseInfo.info = info;
+                houseInfo.price_detail = price_detail;
                 return houseInfo;
             }
             catch (Exception ex)
