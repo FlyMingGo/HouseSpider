@@ -147,10 +147,22 @@ namespace HouseSpider
                     .Contains("slider animated"))
                     .ToList()[0]
                     .Descendants("img").ToList();
+                var imageCount = 1;
+                var replaceItem = string.Empty;
                 foreach (var item in imagesNode)
                 {
                     var imageSrc = item.GetAttributeValue("src", "");
+                    if (imageCount == 1)
+                        replaceItem = imageSrc.Split('?')[0].Split('/')[7];
+                    if (imageSrc.Length == 0)
+                    {
+                        if (imageCount > 9)
+                            imageSrc = images[0].Replace(replaceItem, imageCount.ToString() + "." + replaceItem.Split('.')[1]);
+                        else
+                            imageSrc = images[0].Replace(replaceItem, "0" + imageCount.ToString() + "." + replaceItem.Split('.')[1]);
+                    }
                     images.Add(imageSrc);
+                    imageCount++;
                 }
                 houseInfo.image = images;
                 houseInfo.home_facts = homeFacts;
