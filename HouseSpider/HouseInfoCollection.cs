@@ -30,12 +30,13 @@ namespace HouseSpider
                 html.LoadHtml(driver.PageSource);
                 driver.Close();
                 var root = html.DocumentNode;
-                houseInfo.description = root.Descendants()
+                var descriptionNode = root.Descendants()
                     .Where(n => n.GetAttributeValue("class", "")
                     .Contains("listingoverview"))
                     .ToList()[0]
                     .Descendants("section")
-                    .ToList()[0].InnerText.Trim();
+                    .ToList();
+                houseInfo.description = descriptionNode[descriptionNode.Count - 1].InnerText.Trim();
                 var price_detail_items = root.Descendants()
                     .Where(n => n.GetAttributeValue("class", "")
                     .Contains("sectionblock-display"))
