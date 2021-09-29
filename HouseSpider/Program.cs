@@ -26,7 +26,7 @@ namespace HouseSpider
             var config = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .Build();
-            Console.WriteLine("Web API Server has started at http://localhost:5000");
+            Console.WriteLine("Web API Server has started at http://localhost:5004");
             return WebHost.CreateDefaultBuilder(args)
                 .UseUrls("http://*:5004")
                 .UseConfiguration(config)
